@@ -24,7 +24,7 @@ class ethernet_sensor(object):
 
 	#Initializer
 	#Warning! Output is an output function with one parameter. A good candidate is the put function of a queue.
-	def __init__(self,output,interface='enp0s31f6'):			####### *******EDIT THIS LINE TO SELECT THE INTERFACE TO SNIFF ON********#####
+	def __init__(self,output,interface):
 		self.pcap_handle = pcapy.open_live(interface,1000,True,0)
 
 		#The data is dumped in a queue of pairs of addresses
