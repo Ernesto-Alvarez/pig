@@ -1,5 +1,6 @@
 import threading
 import ipaddr
+import time
 
 #Hub: takes one message from the input queue and replicates it across all output queues
 class hub(object):
@@ -21,7 +22,7 @@ class hub(object):
 #Network range gate: takes an IP packet from the input queue and passes it to the output queue if and only if the IP source is within a list of dymanically changing networks.
 #Takes an input function, an output function and an update function (which returns a list of addresses, usually database.ip_network_table.ip_list)
 class network_range_gate(object):
-	def __init__(self,input,output,update):
+	def __init__(self,input,output,update,update_frequency=0.1):
 		self.input = input;
 		self.output = output;
 		self.addresses = []
@@ -29,6 +30,7 @@ class network_range_gate(object):
 		self.passed = []
 
 		self.update_function = update
+		self.update_frequency = update_frequency
 
 		self.x=threading.Thread(target=self.process)
 		self.x.daemon=True
@@ -60,6 +62,7 @@ class network_range_gate(object):
 
 	def update_addresses(self):
 		while True:
+			time.sleep(0.1) # to avoid a busy loop
 			self.db_semaphore.acquire()
 			self.addresses = self.update_function()
 			self.db_semaphore.release()
