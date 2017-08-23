@@ -99,6 +99,8 @@ def init(interface='enp0s31f6'):
 			else:
 				last_seen_printable = td.split(',')[0]
 			manufacturer = oui_db.search(i)
+			if manufacturer == None:
+				manufacturer = "Unknown"
 			protocols = []
 			for j in protocol_table.query(i):
 				protocols.append(etype_db.query(j))
@@ -107,6 +109,7 @@ def init(interface='enp0s31f6'):
 				protocols_text = ""
 			else:
 				protocols_text = reduce(lambda x,y: x+","+y,protocols)
+
 		
 	
 			print '{0:18} {1:17} {2:25} {3:10} {4:20}'.format(i, str(ip_table.query_one(i)), str(manufacturer)[:25],last_seen_printable.rjust(8),protocols_text[:20])
