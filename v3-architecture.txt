@@ -1,0 +1,25 @@
+Pig v3 architecture.
+
+Pigv3 will be redesigned for ease of use. Architecture of the library is to be efined as following.
+
+A series of sensor objects, at least one for reading live data from an interface and another for pcap replay. These sensors connect to.....
+
+An ethernet decoder/normalizer object. Normally I would not bother with something like that but ethernet actually has multiple frame types and it's better if we select just one format.
+This object might contain a VLAN selector, just in case we need to deal with VLANs, but not for now. If we make this VLAN decoder, it would be best to separate all vlans into different queues, but a vlan filter that lets one through might do it for now.
+With the normalized and filtered data, we send it to.....
+
+A series of analyzer processors, which take raw (or minimally processed) packets and output tables with the desired data. As an example, one processor could take ethernet data and output a table indicating when certain data coming from a MAC address was seen (the detector), another that could take ethernet data and list all ethertypes seen (the protocol list), a third one that takes IP/Ethernet data and runs all 4 techniques in order to extract local IP addresses and a fourth one to extract network addresses.
+These 4 processor analyzers could be used to generate the data as is done with the pig v2 application. However, by making simple processor analyzer modules a user can mix and match according to his needs (e.g. to make a simple IP passive detector) and development of new processing modules can be simplified (e.g. to produce an IPv6 detector, a developer needs to concentrate just on that task, knowing that other detections have been taken care or will be taken care of independently. This permits an incremental increase in the capabilities of the library.
+
+These processor modules should be able to take raw unfiltered data and should be able to ignore what it cannot process. This allows simplifying the sensors and allowing hassle free use of the library by novice users.
+
+Finally, we need a way of combining the multiple tables made available by processor modules. I am not sure whether we should do this in the pig library, as we might end up using a standardized table module.
+
+Assuming we do this table processing in-house, an application would be formed by connecting a sensor to whatever filters might be needed, in turn connected to one or more processing modules and finally using the table combiner to create a table whose key is the MAC address and containing all the data to be used/displayed. Using the library could be as simple as selecting a sensor and some processing modules.
+
+With respect to processor module development, the modules could be composed of components similar to the backends in use in the pigv2. However, the sanity checks could be moved to separate filter objects, as this could permit reuse.
+Each processing module could be composed of some filters cleaning the input for each technique. Each technique would fill the module's output table in a way similar to how is done in the pig v2, using similar objects and techniques. 
+
+
+
+
