@@ -135,6 +135,25 @@ class ip_sensor(ethernet_sensor):
 
 		return { 'source' : ipaddr.IPv4Address(ip_packet.get_ip_src()), 'destination' : ipaddr.IPv4Address(ip_packet.get_ip_dst()), 'station_id' : mac_address(eth_packet.get_ether_shost().tolist()),  'reporter' : [0,0x800], 'protocol' : [0,0x800], 'timestamp' : datetime.datetime.utcnow(), 'rawdata' : packet, 'decode' : eth_packet }
 
+	def sanity_check(self,packet):
+
+		#Ethernet sanity checks
+		#Does it have the correct length?
+		if (len(packet) < 14):
+			return False
+
+		eth = self.decoder.decode(packet)
+
+		if (eth.get_ether_type() != 2048):		
+			return False
+
+		return True
+
+
+
+
+		
+
 class ip_local_bcast_sensor(ip_sensor):
 	pcap_bpf = 'ip dst 255.255.255.255'
 
